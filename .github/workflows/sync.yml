@@ -2,17 +2,23 @@ name: Sync Fork with Upstream
 
 on:
   schedule:
-    - cron: '0 * * * *'   # Runs every hour at minute 0
-  workflow_dispatch:       # Allows you to trigger it manually from the Actions tab
+    - cron: '0 * * * *'   # Runs every hour
+  workflow_dispatch:       # Allows manual trigger
+
+# Explicitly grant the minimum permissions needed
+permissions:
+  contents: write          # Required to push changes to your fork
 
 jobs:
   sync:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Sync fork with upstream
-        uses: tgymnich/fork-sync@v2.0
-        with:
-          owner: AliMollayahia      
-          base: master                
-          head: master               
+      - name: Checkout your fork
+        uses: actions/checkout@v4
+
+      - name: Sync your fork with the upstream repository
+        run: gh repo sync ${{ github.repository }} --branch main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
